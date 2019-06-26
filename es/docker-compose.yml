@@ -1,0 +1,87 @@
+version: '2.2'
+services:
+  es72_1:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.2.0
+    container_name: es72_1
+    environment:
+      - node.name=es72_1
+      - cluster.initial_master_nodes=es72_1,es72_2
+      - cluster.name=docker-cluster
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms2048m -Xmx2048m"
+      - ELASTIC_PASSWORD=123456
+      - xpack.license.self_generated.type=trial
+      - xpack.security.enabled=true
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - esd01:/usr/share/elasticsearch/data
+      - plugins01:/usr/share/elasticsearch/plugins
+    ports:
+      - 9200:9200
+    networks:
+      - esnet
+  es72_2:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.2.0
+    container_name: es72_2
+    environment:
+      - node.name=es72_2
+      - discovery.seed_hosts=es72_1,es72_2
+      - cluster.initial_master_nodes=es72_1,es72_2
+      - cluster.name=docker-cluster
+      - bootstrap.memory_lock=true
+      - ELASTIC_PASSWORD=123456
+      - "ES_JAVA_OPTS=-Xms2048m -Xmx2048m"
+      - xpack.license.self_generated.type=trial
+      - xpack.security.enabled=true
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    depends_on:
+      - "es72_1"
+    volumes:
+      - esd02:/usr/share/elasticsearch/data
+      - plugins02:/usr/share/elasticsearch/plugins
+    networks:
+      - esnet
+  es72_3:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.2.0
+    container_name: es72_3
+    environment:
+      - node.name=es72_3
+      - discovery.seed_hosts=es72_1,es72_2
+      - cluster.initial_master_nodes=es72_1,es72_2
+      - cluster.name=docker-cluster
+      - bootstrap.memory_lock=true
+      - ELASTIC_PASSWORD=123456
+      - "ES_JAVA_OPTS=-Xms2048m -Xmx2048m"
+      - xpack.license.self_generated.type=trial
+      - xpack.security.enabled=true
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    depends_on:
+      - "es72_2"
+    volumes:
+      - esd03:/usr/share/elasticsearch/data
+      - plugins03:/usr/share/elasticsearch/plugins
+    networks:
+      - esnet
+
+volumes:
+  esd01:
+    driver: local
+  esd02:
+    driver: local
+  esd03:
+    driver: local
+  plugins01:
+  plugins02:
+  plugins03:
+
+networks:
+  esnet:
