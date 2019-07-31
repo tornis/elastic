@@ -37,7 +37,7 @@ São necessários os seguintes serviços instalados:
 # firewall-cmd --zone=public --permanent --add-port=9600/tcp
 ```
 
-### Passo 5 - Clonando os scripts Elastic Stack do git da BKTECH
+### Passo 5 - Clonando os scripts Elastic Stack do git TORNIS 
 ```
 # cd /opt/ 
 # git clone https://github.com/tornis/elastic.git 
