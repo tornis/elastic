@@ -1,0 +1,5 @@
+{
+  "password" : "123456",
+  "roles" : [ "logstash_writer","logstash_admin" ],
+  "full_name" : "Internal Logstash User"
+}

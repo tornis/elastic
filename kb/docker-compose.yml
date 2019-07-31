@@ -1,6 +1,6 @@
 version: '2.2'
 services:
-  kb_72:
+  kb72:
     container_name: kb72
     image: docker.elastic.co/kibana/kibana:7.2.0
     volumes:

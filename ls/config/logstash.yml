@@ -16,7 +16,7 @@
 #
 # Use a descriptive name for the node:
 #
-# node.name: test
+node.name: logstash01
 #
 # If omitted the node name will default to the machine's host name
 #
@@ -78,7 +78,7 @@ config.reload.automatic: true
 #
 # How often to check if the pipeline configuration has changed (in seconds)
 #
-config.reload.interval: 10s
+config.reload.interval: 5s
 #
 # Show fully compiled configuration as debug log message
 # NOTE: --log.level must be 'debug'
@@ -187,12 +187,12 @@ config.reload.interval: 10s
 #
 # Bind address for the metrics REST endpoint
 #
-# http.host: "127.0.0.1"
+#http.host: "172.17.0.1"
 #
 # Bind port for the metrics REST endpoint, this option also accept a range
 # (9600-9700) and logstash will pick up the first available ports.
 #
-# http.port: 9600-9700
+http.port: 9600-9700
 #
 # ------------ Debugging Settings --------------
 #
@@ -226,15 +226,15 @@ xpack.monitoring.elasticsearch.hosts: ["http://172.17.0.1:9200"]
 #xpack.monitoring.elasticsearch.ssl.keystore.path: /path/to/file
 #xpack.monitoring.elasticsearch.ssl.keystore.password: password
 #xpack.monitoring.elasticsearch.ssl.verification_mode: certificate
-#xpack.monitoring.elasticsearch.sniffing: false
-#xpack.monitoring.collection.interval: 10s
-#xpack.monitoring.collection.pipeline.details.enabled: true
+xpack.monitoring.elasticsearch.sniffing: true 
+xpack.monitoring.collection.interval: 10s
+xpack.monitoring.collection.pipeline.details.enabled: true
 #
 # X-Pack Management
 # https://www.elastic.co/guide/en/logstash/current/logstash-centralized-pipeline-management.html
 xpack.management.enabled: true 
-#xpack.management.pipeline.id: ["main"]
-xpack.management.elasticsearch.username: logstash_admin
+xpack.management.pipeline.id: ["main","apache"]
+xpack.management.elasticsearch.username: logstash_internal
 xpack.management.elasticsearch.password: "123456"
 xpack.management.elasticsearch.hosts: ["http://172.17.0.1:9200"]
 #xpack.management.elasticsearch.ssl.certificate_authority: [ "/path/to/ca.crt" ]

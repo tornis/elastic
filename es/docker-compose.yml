@@ -1,76 +1,111 @@
 version: '2.2'
 services:
-  es72_1:
+  es71:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.2.0
-    container_name: es72_1
+    container_name: es71
     environment:
-      - node.name=es72_1
-      - cluster.initial_master_nodes=es72_1,es72_2
-      - cluster.name=docker-cluster
+      - node.name=es71
+      - node.ml=true
+      - cluster.initial_master_nodes=es71,es72
       - bootstrap.memory_lock=true
       - "ES_JAVA_OPTS=-Xms2048m -Xmx2048m"
       - ELASTIC_PASSWORD=123456
       - xpack.license.self_generated.type=trial
       - xpack.security.enabled=true
+      - xpack.monitoring.collection.enabled=true
     ulimits:
       memlock:
         soft: -1
         hard: -1
     volumes:
+      - ./elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+      - ./set-pw-es:/usr/share/elasticsearch/bin/set-pw-es
       - esd01:/usr/share/elasticsearch/data
       - plugins01:/usr/share/elasticsearch/plugins
     ports:
       - 9200:9200
     networks:
       - esnet
-  es72_2:
+  es72:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.2.0
-    container_name: es72_2
+    container_name: es72
     environment:
-      - node.name=es72_2
-      - discovery.seed_hosts=es72_1,es72_2
-      - cluster.initial_master_nodes=es72_1,es72_2
-      - cluster.name=docker-cluster
+      - node.name=es72
+      - node.ml=true
+      - discovery.seed_hosts=es71,es72
+      - cluster.initial_master_nodes=es71,es72
       - bootstrap.memory_lock=true
       - ELASTIC_PASSWORD=123456
       - "ES_JAVA_OPTS=-Xms2048m -Xmx2048m"
       - xpack.license.self_generated.type=trial
       - xpack.security.enabled=true
+      - xpack.monitoring.collection.enabled=true
     ulimits:
       memlock:
         soft: -1
         hard: -1
     depends_on:
-      - "es72_1"
+      - "es71"
     volumes:
+      - ./elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
       - esd02:/usr/share/elasticsearch/data
       - plugins02:/usr/share/elasticsearch/plugins
     networks:
       - esnet
-  es72_3:
+  es73:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.2.0
-    container_name: es72_3
+    container_name: es73
     environment:
-      - node.name=es72_3
-      - discovery.seed_hosts=es72_1,es72_2
-      - cluster.initial_master_nodes=es72_1,es72_2
-      - cluster.name=docker-cluster
+      - node.name=es73
+      - node.ml=true
+      - discovery.seed_hosts=es71,es72
+      - cluster.initial_master_nodes=es71,es72
       - bootstrap.memory_lock=true
       - ELASTIC_PASSWORD=123456
       - "ES_JAVA_OPTS=-Xms2048m -Xmx2048m"
       - xpack.license.self_generated.type=trial
       - xpack.security.enabled=true
+      - xpack.monitoring.collection.enabled=true
     ulimits:
       memlock:
         soft: -1
         hard: -1
     depends_on:
-      - "es72_2"
+      - "es72"
     volumes:
+      - ./elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
       - esd03:/usr/share/elasticsearch/data
       - plugins03:/usr/share/elasticsearch/plugins
     networks:
       - esnet
+
+# Caso desejar separar o node para MachineLearn basta descomentar esse trecho. 
+# Os demais nós devem estar com o paramentro "node.ml=false"
+#  es7ml:
+#    image: docker.elastic.co/elasticsearch/elasticsearch:7.2.0
+#    container_name: es7ml
+#    environment:
+#      - node.name=es7ml
+#      - node.ml=true
+#      - discovery.seed_hosts=es71,es72
+#      - cluster.initial_master_nodes=es71,es72
+#      - bootstrap.memory_lock=true
+#      - ELASTIC_PASSWORD=123456
+#      - "ES_JAVA_OPTS=-Xms2048m -Xmx2048m"
+#      - xpack.license.self_generated.type=trial
+#      - xpack.security.enabled=true
+#    ulimits:
+#      memlock:
+#        soft: -1
+#        hard: -1
+#    depends_on:
+#      - "es73"
+#    volumes:
+#      - ./elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+#      - esd04:/usr/share/elasticsearch/data
+#      - plugins04:/usr/share/elasticsearch/plugins
+#    networks:
+#      - esnet
 
 volumes:
   esd01:
@@ -79,9 +114,12 @@ volumes:
     driver: local
   esd03:
     driver: local
+#  esd04:
+#    driver: local
   plugins01:
   plugins02:
   plugins03:
+#  plugins04:
 
 networks:
   esnet:
