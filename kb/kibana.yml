@@ -87,10 +87,10 @@ elasticsearch.password: "123456"
 #elasticsearch.startupTimeout: 5000
 
 # Logs queries sent to Elasticsearch. Requires logging.verbose set to true.
-#elasticsearch.logQueries: false
+elasticsearch.logQueries: true
 
 # Specifies the path where Kibana creates the process ID file.
-#pid.file: /var/run/kibana.pid
+# pid.file: /var/run/kibana.pid
 
 # Enables you specify a file where Kibana stores log output.
 #logging.dest: stdout

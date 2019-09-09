@@ -1,6 +1,6 @@
 # Elastic Stack Enterprise Scripts 
 
-Passo a Passo - Montagem de infra Elastic Stack para Testes 
+Passo a Passo - Montagem de infra Elastic Stack para Testes usando docker-compose 
 
 ### Pré Requisitos 
 São necessários os seguintes serviços instalados:
@@ -30,14 +30,15 @@ São necessários os seguintes serviços instalados:
 # docker-compose version
 ```
 
-### Passo 4 - Liberando portas do Elasticsearch, Logstash e Kibana no FirewallD (CentOS/RHCE7)
+### Passo 4 - Liberando portas do Elasticsearch, Logstash+Beats e Kibana no FirewallD (CentOS/RHCE7)
 ```
 # firewall-cmd --zone=public --permanent --add-port=9200/tcp
 # firewall-cmd --zone=public --permanent --add-port=5601/tcp
 # firewall-cmd --zone=public --permanent --add-port=9600/tcp
+# firewall-cmd --zone=public --permanent --add-port=5044/tcp
 ```
 
-### Passo 5 - Clonando os scripts Elastic Stack do git TORNIS 
+### Passo 5 - Clonando os scripts Elastic Stack do git TORNIS
 ```
 # cd /opt/ 
 # git clone https://github.com/tornis/elastic.git 
@@ -84,54 +85,11 @@ _OBS: Caso o passo 5 não tenha sido concluído com sucesso, repetir os passos a
 
 ### Passo 7 - Definindo senhas para os serviços da Stack(Kibana, Elasticsearch, Beats e Logstash)
 
-_Obs: Nesse passo vamos definir senha para os usuários que estão no core do Elasticsearch. Para isso temos que acessar o container que está com a porta 9200 exposta._ 
+_Obs: Nesse passo vamos definir senha para os usuários que estão no core do Elasticsearch. Dentro da pasta "es" temos o script "create-roles-users.sh". Esse script define senhas para os usuários builtin do Elasticsaerch e também cria os usuários que serão usados pelo Logstash para realizar ingestão no Elasticsearch e monitoramento do Pipeline_
+
 ```
-# docker ps 
-``` 
-Resultado do comando deve-se paracer conforme abaixo:
-``` 
-00cf84028d3f        docker.elastic.co/elasticsearch/elasticsearch:7.1.1   "/usr/local/bin/dock…"   8 hours ago         Up 8 hours          9200/tcp, 9300/tcp                 es03
-8b4bb9b55ac7        docker.elastic.co/elasticsearch/elasticsearch:7.1.1   "/usr/local/bin/dock…"   8 hours ago         Up 8 hours          0.0.0.0:9200->9200/tcp, 9300/tcp   es01
-3b67b6d01d1b        docker.elastic.co/elasticsearch/elasticsearch:7.1.1   "/usr/local/bin/dock…"   8 hours ago         Up 8 hours          9200/tcp, 9300/tcp   	          es02
-``` 
-_OBS: Procure algo similar a ``` 0.0.0.0:9200->9200/tcp, 9300/tcp ```, isso carateriza o container que esta com a porta exposta assim o ID do container é __8b4bb9b55ac7___
-
-Agora execute o comando abaixo para acessar o container em questão: 
-``` 
-# docker exec -it <ID_container> /bin/bash 
-```
-
-OBS: _Logo aparecerá o prompt do container_
-
-__Dentro do Container__
-Siga os passos abaixo: 
-```
-# ./bin/elasticsearch-setup-passwords interactive 
-
-Initiating the setup of passwords for reserved users elastic,apm_system,kibana,logstash_system,beats_system,remote_monitoring_user.
-You will be prompted to enter passwords as the process progresses.
-Please confirm that you would like to continue [y/N] <---- COLOQUE "y"
-
-Enter password for [elastic]: <----- COLOQUE A SENHA AQUI 
-Reenter password for [elastic]: 
-Enter password for [apm_system]: 
-Reenter password for [apm_system]: 
-Enter password for [kibana]: 
-Reenter password for [kibana]: 
-Enter password for [logstash_system]: 
-Reenter password for [logstash_system]: 
-Enter password for [beats_system]: 
-Reenter password for [beats_system]: 
-Enter password for [remote_monitoring_user]: 
-Reenter password for [remote_monitoring_user]: 
-Changed password for user [apm_system]
-Changed password for user [kibana]
-Changed password for user [logstash_system]
-Changed password for user [beats_system]
-Changed password for user [remote_monitoring_user]
-Changed password for user [elastic]
-
-# exit
+# cd es
+# ./create-roles-users.sh 
 ```
 
 ### Passo 8 - Subindo instância do Kibana
@@ -147,3 +105,36 @@ __Acesse o kibana via navegador__
 > http://<IP_DO_HOST>:5601
  
 Se pedir login e senha use: ``` elastic/123456 ``` a senha esta definida no aquivo docker-compose.yml
+
+### Passo 9 - Subindo instância do Logstash
+_Obs: Inicialmente o Logstash está configurado para ler o pipeline "__Main__" a partir do Elasticsearch. Observe que dentro da pasta "__ls/config__" estão todos os arquivos de configuração do Logstash. Especificamente no arquivo "__logstash.yml__" temos os parâmetros:
+```
+xpack.monitoring.elasticsearch.username: logstash_system
+xpack.monitoring.elasticsearch.password: "123456"
+xpack.monitoring.elasticsearch.hosts: ["http://172.17.0.1:9200"]
+...
+xpack.management.pipeline.id: ["main"]
+xpack.management.elasticsearch.username: logstash_internal
+xpack.management.elasticsearch.password: "123456"
+xpack.management.elasticsearch.hosts: ["http://172.17.0.1:9200"]
+```
+eles são responsáveis por habilitar o monitoramento pela MonitorUI e gerência do Pipeline no Kibana.
+Então execute o script "__create-pipeline-main.sh__" antes de subir a instância do Logstash. Lembrando que o pipeline padrão está configurando apenas com INPUT e OUTPUT_
+```
+# cd ls 
+# ./create-pipeline-main.sh
+```
+
+__Iniciando o Logstash__
+
+```
+# cd ls
+# docker-compose up -d 
+```
+
+__Kibana MonitorUI e Pipeline Config do Logstash__
+
+Identificando a instância do Logstash no Kibana MonitorUI
+
+
+Identificando o pipeline "__main__" em Logstash Pipeline no Kibana Config

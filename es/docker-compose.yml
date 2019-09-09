@@ -1,12 +1,12 @@
 version: '2.2'
 services:
-  es71:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.2.0
-    container_name: es71
+  es73_1:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.3.1
+    container_name: es73_1
     environment:
-      - node.name=es71
+      - node.name=es73_1
       - node.ml=true
-      - cluster.initial_master_nodes=es71,es72
+      - cluster.initial_master_nodes=es73_1,es73_2
       - bootstrap.memory_lock=true
       - "ES_JAVA_OPTS=-Xms2048m -Xmx2048m"
       - ELASTIC_PASSWORD=123456
@@ -26,14 +26,14 @@ services:
       - 9200:9200
     networks:
       - esnet
-  es72:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.2.0
-    container_name: es72
+  es73_2:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.3.1
+    container_name: es73_2
     environment:
-      - node.name=es72
+      - node.name=es73_2
       - node.ml=true
-      - discovery.seed_hosts=es71,es72
-      - cluster.initial_master_nodes=es71,es72
+      - discovery.seed_hosts=es73_1,es73_2
+      - cluster.initial_master_nodes=es73_1,es73_2
       - bootstrap.memory_lock=true
       - ELASTIC_PASSWORD=123456
       - "ES_JAVA_OPTS=-Xms2048m -Xmx2048m"
@@ -45,21 +45,21 @@ services:
         soft: -1
         hard: -1
     depends_on:
-      - "es71"
+      - "es73_1"
     volumes:
       - ./elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
       - esd02:/usr/share/elasticsearch/data
       - plugins02:/usr/share/elasticsearch/plugins
     networks:
       - esnet
-  es73:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.2.0
-    container_name: es73
+  es73_3:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.3.1
+    container_name: es73_3
     environment:
-      - node.name=es73
+      - node.name=es73_3
       - node.ml=true
-      - discovery.seed_hosts=es71,es72
-      - cluster.initial_master_nodes=es71,es72
+      - discovery.seed_hosts=es73_1,es73_2
+      - cluster.initial_master_nodes=es73_1,es73_2
       - bootstrap.memory_lock=true
       - ELASTIC_PASSWORD=123456
       - "ES_JAVA_OPTS=-Xms2048m -Xmx2048m"
@@ -71,7 +71,7 @@ services:
         soft: -1
         hard: -1
     depends_on:
-      - "es72"
+      - "es73_2"
     volumes:
       - ./elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
       - esd03:/usr/share/elasticsearch/data
@@ -82,7 +82,7 @@ services:
 # Caso desejar separar o node para MachineLearn basta descomentar esse trecho. 
 # Os demais nós devem estar com o paramentro "node.ml=false"
 #  es7ml:
-#    image: docker.elastic.co/elasticsearch/elasticsearch:7.2.0
+#    image: docker.elastic.co/elasticsearch/elasticsearch:7.3.1
 #    container_name: es7ml
 #    environment:
 #      - node.name=es7ml
