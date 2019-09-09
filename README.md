@@ -135,6 +135,7 @@ __Iniciando o Logstash__
 __Kibana MonitorUI e Pipeline Config do Logstash__
 
 Identificando a instância do Logstash no Kibana MonitorUI
-
+![Instancia Logstash](https://github.com/tornis/elastic/blob/master/images/logstash_monitor.png)
 
 Identificando o pipeline "__main__" em Logstash Pipeline no Kibana Config
+![Pipeline Logstash](https://github.com/tornis/elastic/blob/master/images/logstash_pipeline.png)
